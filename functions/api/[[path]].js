@@ -1,9 +1,13 @@
-export async function onRequest({ request, params }) {
+export async function onRequest({ request, params, env }) {
   const url = new URL(request.url)
   const path = params.path || []
 
+  // 从环境变量获取配置
+  const workerUrl = env.API_WORKER_URL || 'https://cherrysopenbiocrad.gudupao2022-eae.workers.dev'
+  const allowedOrigin = env.CORS_ALLOWED_ORIGIN || 'https://openbiocard-web.pages.dev'
+
   // 构建目标URL
-  const targetUrl = `https://cherrysopenbiocrad.gudupao2022-eae.workers.dev/${path.join('/')}${url.search}`
+  const targetUrl = `${workerUrl}/${path.join('/')}${url.search}`
 
   // 创建新请求，保留原始方法和头
   const newRequest = new Request(targetUrl, {
@@ -24,7 +28,7 @@ export async function onRequest({ request, params }) {
       statusText: response.statusText,
       headers: {
         ...Object.fromEntries(response.headers),
-        'Access-Control-Allow-Origin': 'https://openbiocard-web.pages.dev',
+        'Access-Control-Allow-Origin': allowedOrigin,
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
       },
