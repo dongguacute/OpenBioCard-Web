@@ -13,11 +13,14 @@ export function useGitHubData(username, updateInterval = 10 * 60 * 1000) {
 
   // 获取 GitHub 用户信息
   const fetchGitHubData = async () => {
-    const usernameValue = typeof username === 'string' ? username : username.value
+    let usernameValue = typeof username === 'string' ? username : username.value
     if (!usernameValue) {
       data.value = null
       return
     }
+
+    // 清理用户名，移除开头的 @ 符号
+    usernameValue = usernameValue.replace(/^@/, '')
 
     loading.value = true
     error.value = null
@@ -98,7 +101,9 @@ export function useSocialLinksData(socialLinks) {
     for (const link of socialLinks.value) {
       if (link.type === 'github' && link.value) {
         try {
-          const response = await fetch(`https://api.github.com/users/${link.value}`)
+          // 清理用户名，移除开头的 @ 符号
+          const cleanUsername = link.value.replace(/^@/, '')
+          const response = await fetch(`https://api.github.com/users/${cleanUsername}`)
           if (response.ok) {
             const result = await response.json()
             link.githubData = {

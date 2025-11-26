@@ -23,6 +23,15 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true
         }
       }
-    }
+    },
+    build: {
+      assetsDir: 'assets',
+      rollupOptions: {
+        output: {
+          assetFileNames: 'assets/[name].[ext]'
+        }
+      }
+    },
+    publicDir: 'public'
   }
 })
