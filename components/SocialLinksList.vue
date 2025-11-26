@@ -79,7 +79,8 @@ const getSocialLinkLabel = (type) => {
 const handleLinkClick = (link) => {
   // GitHub 点击处理：打开 GitHub 主页
   if (link.type === 'github' && link.value) {
-    window.open(`https://github.com/${link.value}`, '_blank')
+    const cleanUsername = link.value.replace(/^@/, '')
+    window.open(`https://github.com/${cleanUsername}`, '_blank')
     return
   }
 
