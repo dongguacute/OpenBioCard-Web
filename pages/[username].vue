@@ -376,38 +376,52 @@ const updateSocialLinkType = (index, type) => {
   }
 }
 
+// 防抖函数
+const debounce = (func, delay) => {
+  let timeoutId
+  return (...args) => {
+    clearTimeout(timeoutId)
+    timeoutId = setTimeout(() => func.apply(null, args), delay)
+  }
+}
+
 // 更新社交媒体链接值
 const updateSocialLinkValue = async (index, value) => {
   editData.value.socialLinks[index].value = value
 
-  // 如果是 GitHub 链接，立即获取数据
+  // 如果是 GitHub 链接，使用防抖获取数据
   if (editData.value.socialLinks[index].type === 'github' && value) {
-    try {
-      // 清理用户名，移除开头的 @ 符号
-      const cleanUsername = value.replace(/^@/, '')
-      const response = await fetch(`https://api.github.com/users/${cleanUsername}`)
-      if (response.ok) {
-        const result = await response.json()
-        editData.value.socialLinks[index].githubData = {
-          login: result.login,
-          name: result.name,
-          avatar_url: result.avatar_url,
-          bio: result.bio,
-          location: result.location,
-          blog: result.blog,
-          twitter_username: result.twitter_username,
-          public_repos: result.public_repos,
-          followers: result.followers,
-          following: result.following,
-          created_at: result.created_at,
-          updated_at: result.updated_at
-        }
-      }
-    } catch (err) {
-      console.error('获取 GitHub 信息失败:', err)
-    }
+    debouncedFetchGitHubData(index, value)
   }
 }
+
+// 防抖的GitHub数据获取函数（延迟1秒）
+const debouncedFetchGitHubData = debounce(async (index, value) => {
+  try {
+    // 清理用户名，移除开头的 @ 符号
+    const cleanUsername = value.replace(/^@/, '')
+    const response = await fetch(`https://api.github.com/users/${cleanUsername}`)
+    if (response.ok) {
+      const result = await response.json()
+      editData.value.socialLinks[index].githubData = {
+        login: result.login,
+        name: result.name,
+        avatar_url: result.avatar_url,
+        bio: result.bio,
+        location: result.location,
+        blog: result.blog,
+        twitter_username: result.twitter_username,
+        public_repos: result.public_repos,
+        followers: result.followers,
+        following: result.following,
+        created_at: result.created_at,
+        updated_at: result.updated_at
+      }
+    }
+  } catch (err) {
+    console.error('获取 GitHub 信息失败:', err)
+  }
+}, 1000)
 
 // 添加项目
 const addProject = () => {
