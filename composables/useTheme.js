@@ -5,26 +5,18 @@ export function useTheme() {
 
   // 检查系统主题偏好
   const checkSystemTheme = () => {
-    if (typeof window !== 'undefined') {
-      return window.matchMedia('(prefers-color-scheme: dark)').matches
-    }
-    return false
+    return window.matchMedia('(prefers-color-scheme: dark)').matches
   }
 
   // 从localStorage获取保存的主题
   const getSavedTheme = () => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('theme') === 'dark'
-    }
-    return false
+    return localStorage.getItem('theme') === 'dark'
   }
 
   // 应用主题
   const applyTheme = (dark) => {
-    if (typeof window !== 'undefined') {
-      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light')
-      localStorage.setItem('theme', dark ? 'dark' : 'light')
-    }
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light')
+    localStorage.setItem('theme', dark ? 'dark' : 'light')
   }
 
   // 切换主题
