@@ -18,7 +18,7 @@ For backend setup and API documentation, please refer to: [OpenBioCard Backend](
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-repo/OpenBioCard-Web.git
+   git clone https://github.com/OpenBioCard/OpenBioCard-Web.git
    cd OpenBioCard-Web
    ```
 
