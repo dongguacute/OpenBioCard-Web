@@ -4,26 +4,7 @@
     <Navigation :current-user="currentUser" @logout="logout" />
 
     <!-- 404 页面 -->
-    <div v-if="userNotFound" style="max-width: 1152px; margin: 0 auto; padding: 4rem 1rem; text-align: center;">
-      <div style="background: var(--color-bg-overlay); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 1rem; box-shadow: var(--shadow-sm); border: 1px solid var(--color-border-tertiary); padding: 4rem 2rem;">
-        <div style="width: 6rem; height: 6rem; background: var(--color-bg-tertiary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 2rem;">
-          <svg style="width: 3rem; height: 3rem; color: var(--color-text-tertiary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-          </svg>
-        </div>
-        <h1 style="font-size: 3rem; font-weight: bold; color: var(--color-text-primary); margin: 0 0 1rem;">404</h1>
-        <p style="font-size: 1.25rem; color: var(--color-text-tertiary); margin: 0 0 2rem;">{{ $t('error.userNotFound') }}</p>
-        <p style="color: var(--color-text-tertiary); margin: 0 0 2rem;">{{ $t('error.userNotFoundMessage', { username }) }}</p>
-        <a
-          href="/"
-          style="display: inline-block; padding: 0.75rem 1.5rem; background: var(--color-primary); color: var(--color-text-inverse); border-radius: 0.5rem; text-decoration: none; transition: background-color 0.2s; font-weight: 500;"
-          onmouseover="this.style.backgroundColor='var(--color-primary-hover)'"
-          onmouseout="this.style.backgroundColor='var(--color-primary)'"
-        >
-          {{ $t('error.goBackHome') }}
-        </a>
-      </div>
-    </div>
+    <UserNotFound v-if="userNotFound" :username="username" />
 
     <!-- 主要内容 -->
     <main v-else style="max-width: 1152px; margin: 0 auto; padding: 2rem 1rem;">
@@ -50,6 +31,8 @@
           @update:background="editData.background = $event"
           @update:location="editData.location = $event"
           @update:website="editData.website = $event"
+          @update:currentCompany="editData.currentCompany = $event"
+          @update:workExperiences="editData.workExperiences = $event"
         />
 
         <!-- 联系方式列表 -->
@@ -101,6 +84,26 @@
           @upload-logo="handleProjectLogoUpload"
         />
 
+        <!-- 工作经历列表 -->
+        <WorkExperience :work-experiences="profileData.workExperiences" />
+
+        <!-- 编辑工作经历 -->
+        <WorkExperienceEdit
+          v-if="editMode && canEdit"
+          :work-experiences="editData.workExperiences"
+          @add="addWorkExperience"
+          @remove="removeWorkExperience"
+          @update-position="(index, value) => updateWorkExperience(index, 'position', value)"
+          @update-company="(index, value) => updateWorkExperience(index, 'company', value)"
+          @update-start-date="(index, value) => updateWorkExperience(index, 'startDate', value)"
+          @update-end-date="(index, value) => updateWorkExperience(index, 'endDate', value)"
+          @update-description="(index, value) => updateWorkExperience(index, 'description', value)"
+          @set-logo-input-ref="setWorkLogoInputRef"
+          @trigger-logo-input="triggerWorkLogoInput"
+          @upload-logo="handleWorkLogoUpload"
+          @remove-logo="removeWorkLogo"
+        />
+
         <!-- 相册列表 -->
         <GalleryList
           :gallery="profileData.gallery"
@@ -143,6 +146,9 @@ import ProjectsEdit from '../components/ProjectsEdit.vue'
 import GalleryList from '../components/GalleryList.vue'
 import GalleryEdit from '../components/GalleryEdit.vue'
 import QRCodeModal from '../components/QRCodeModal.vue'
+import UserNotFound from '../components/UserNotFound.vue'
+import WorkExperience from '../components/WorkExperience.vue'
+import WorkExperienceEdit from '../components/WorkExperienceEdit.vue'
 import { useSocialLinksData } from '../composables/useGitHubData'
 import { userAPI } from '../api/index.js'
 
@@ -165,6 +171,8 @@ const profileData = ref({
   location: '',
   website: '',
   background: '',
+  currentCompany: '',
+  workExperiences: [],
   contacts: [],
   socialLinks: [],
   projects: [],
@@ -230,7 +238,7 @@ const loadProfile = async () => {
   try {
     const data = await userAPI.getProfile(username)
     profileData.value = { ...profileData.value, ...data }
-    // 确保 socialLinks、projects 和 gallery 是数组
+    // 确保 socialLinks、projects、gallery 和 workExperiences 是数组
     if (!profileData.value.socialLinks) {
       profileData.value.socialLinks = []
     }
@@ -239,6 +247,9 @@ const loadProfile = async () => {
     }
     if (!profileData.value.gallery) {
       profileData.value.gallery = []
+    }
+    if (!profileData.value.workExperiences) {
+      profileData.value.workExperiences = []
     }
     // 使用深拷贝避免引用问题
     editData.value = JSON.parse(JSON.stringify(profileData.value))
@@ -494,6 +505,76 @@ const removePhoto = (index) => {
 // 更新照片说明
 const updatePhotoCaption = (index, caption) => {
   editData.value.gallery[index].caption = caption
+}
+
+
+// 添加工作经历
+const addWorkExperience = () => {
+  if (!editData.value.workExperiences) {
+    editData.value.workExperiences = []
+  }
+  editData.value.workExperiences.push({
+    position: '',
+    company: '',
+    startDate: '',
+    endDate: '',
+    description: '',
+    logo: ''
+  })
+}
+
+// 删除工作经历
+const removeWorkExperience = (index) => {
+  editData.value.workExperiences.splice(index, 1)
+}
+
+// 更新工作经历
+const updateWorkExperience = (index, field, value) => {
+  editData.value.workExperiences[index][field] = value
+}
+
+// 处理工作经历 Logo 上传
+const handleWorkLogoUpload = (event, index) => {
+  const file = event.target.files[0]
+  if (!file) return
+
+  if (file.size > 2 * 1024 * 1024) {
+    alert(t('profile.imageTooLarge'))
+    return
+  }
+
+  if (!file.type.startsWith('image/')) {
+    alert(t('contact.selectImageFile'))
+    return
+  }
+
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    editData.value.workExperiences[index].logo = e.target.result
+  }
+  reader.readAsDataURL(file)
+}
+
+// 工作经历 Logo 输入元素引用
+const workLogoInputs = ref([])
+
+// 设置工作经历 Logo 输入元素引用
+const setWorkLogoInputRef = (el, index) => {
+  if (el) {
+    workLogoInputs.value[index] = el
+  }
+}
+
+// 触发工作经历 Logo 文件选择
+const triggerWorkLogoInput = (index) => {
+  if (workLogoInputs.value[index]) {
+    workLogoInputs.value[index].click()
+  }
+}
+
+// 移除工作经历 Logo
+const removeWorkLogo = (index) => {
+  editData.value.workExperiences[index].logo = ''
 }
 
 // 退出登录

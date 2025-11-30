@@ -58,6 +58,9 @@
             <span v-if="profileData.website" style="display: flex; align-items: center; gap: 0.25rem;">
               🌐 <a :href="profileData.website" target="_blank" style="color: var(--color-primary); text-decoration: none; font-weight: 500;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">{{ profileData.website }}</a>
             </span>
+            <span v-if="profileData.currentCompany" style="display: flex; align-items: center; gap: 0.25rem;">
+              🏢 {{ profileData.currentCompany }}
+            </span>
           </div>
         </div>
       </div>
@@ -81,5 +84,11 @@ defineEmits(['toggle-edit'])
 
 const isBase64Image = (str) => {
   return str && str.startsWith('data:image/') && str.includes('base64,')
+}
+
+const formatDate = (dateStr) => {
+  if (!dateStr) return ''
+  const date = new Date(dateStr)
+  return date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'short' })
 }
 </script>
