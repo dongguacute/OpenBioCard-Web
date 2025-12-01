@@ -175,6 +175,18 @@
               onblur="this.style.borderColor='var(--color-border-secondary)'; this.style.boxShadow='none'"
             />
           </div>
+          <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <label style="display: block; font-size: 0.875rem; font-weight: 600; color: var(--color-text-secondary);">{{ $t('profile.currentSchool') }}</label>
+            <input
+              :value="editData.currentSchool"
+              @input="$emit('update:currentSchool', $event.target.value)"
+              type="text"
+              style="width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--color-border-secondary); border-radius: 0.75rem; outline: none; transition: all 0.2s; background: var(--color-bg-primary); color: var(--color-text-primary);"
+              :placeholder="$t('profile.enterCurrentSchool')"
+              onfocus="this.style.borderColor='var(--color-primary)'; this.style.boxShadow='var(--shadow-focus)'"
+              onblur="this.style.borderColor='var(--color-border-secondary)'; this.style.boxShadow='none'"
+            />
+          </div>
         </div>
         <div style="display: flex; justify-content: flex-end; gap: 1rem; padding-top: 1rem;">
           <button
@@ -222,7 +234,7 @@ defineProps({
   }
 })
 
-const emit = defineEmits(['save', 'cancel', 'update:name', 'update:pronouns', 'update:avatar', 'update:bio', 'update:background', 'update:location', 'update:website', 'update:currentCompany', 'avatar-upload', 'background-upload'])
+const emit = defineEmits(['save', 'cancel', 'update:name', 'update:pronouns', 'update:avatar', 'update:bio', 'update:background', 'update:location', 'update:website', 'update:currentCompany', 'update:currentSchool', 'avatar-upload', 'background-upload'])
 
 const fileInput = ref(null)
 const backgroundInput = ref(null)

@@ -61,6 +61,9 @@
             <span v-if="profileData.currentCompany" style="display: flex; align-items: center; gap: 0.25rem;">
               🏢 {{ profileData.currentCompany }}
             </span>
+            <span v-if="profileData.currentSchool" style="display: flex; align-items: center; gap: 0.25rem;">
+              🎓 {{ profileData.currentSchool }}
+            </span>
           </div>
         </div>
       </div>

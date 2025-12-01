@@ -32,6 +32,7 @@
           @update:location="editData.location = $event"
           @update:website="editData.website = $event"
           @update:currentCompany="editData.currentCompany = $event"
+          @update:currentSchool="editData.currentSchool = $event"
           @update:workExperiences="editData.workExperiences = $event"
         />
 
@@ -104,6 +105,27 @@
           @remove-logo="removeWorkLogo"
         />
 
+        <!-- 学校经历列表 -->
+        <SchoolExperience :school-experiences="profileData.schoolExperiences" />
+
+        <!-- 编辑学校经历 -->
+        <SchoolExperienceEdit
+          v-if="editMode && canEdit"
+          :school-experiences="editData.schoolExperiences"
+          @add="addSchoolExperience"
+          @remove="removeSchoolExperience"
+          @update-degree="(index, value) => updateSchoolExperience(index, 'degree', value)"
+          @update-school="(index, value) => updateSchoolExperience(index, 'school', value)"
+          @update-major="(index, value) => updateSchoolExperience(index, 'major', value)"
+          @update-start-date="(index, value) => updateSchoolExperience(index, 'startDate', value)"
+          @update-end-date="(index, value) => updateSchoolExperience(index, 'endDate', value)"
+          @update-description="(index, value) => updateSchoolExperience(index, 'description', value)"
+          @set-logo-input-ref="setSchoolLogoInputRef"
+          @trigger-logo-input="triggerSchoolLogoInput"
+          @upload-logo="handleSchoolLogoUpload"
+          @remove-logo="removeSchoolLogo"
+        />
+
         <!-- 相册列表 -->
         <GalleryList
           :gallery="profileData.gallery"
@@ -149,6 +171,8 @@ import QRCodeModal from '../components/QRCodeModal.vue'
 import UserNotFound from '../components/UserNotFound.vue'
 import WorkExperience from '../components/WorkExperience.vue'
 import WorkExperienceEdit from '../components/WorkExperienceEdit.vue'
+import SchoolExperience from '../components/SchoolExperience.vue'
+import SchoolExperienceEdit from '../components/SchoolExperienceEdit.vue'
 import { useSocialLinksData } from '../composables/useGitHubData'
 import { userAPI } from '../api/index.js'
 
@@ -172,7 +196,9 @@ const profileData = ref({
   website: '',
   background: '',
   currentCompany: '',
+  currentSchool: '',
   workExperiences: [],
+  schoolExperiences: [],
   contacts: [],
   socialLinks: [],
   projects: [],
@@ -238,7 +264,7 @@ const loadProfile = async () => {
   try {
     const data = await userAPI.getProfile(username)
     profileData.value = { ...profileData.value, ...data }
-    // 确保 socialLinks、projects、gallery 和 workExperiences 是数组
+    // 确保 socialLinks、projects、gallery、workExperiences 和 schoolExperiences 是数组
     if (!profileData.value.socialLinks) {
       profileData.value.socialLinks = []
     }
@@ -250,6 +276,9 @@ const loadProfile = async () => {
     }
     if (!profileData.value.workExperiences) {
       profileData.value.workExperiences = []
+    }
+    if (!profileData.value.schoolExperiences) {
+      profileData.value.schoolExperiences = []
     }
     // 使用深拷贝避免引用问题
     editData.value = JSON.parse(JSON.stringify(profileData.value))
@@ -284,9 +313,19 @@ const saveProfile = async () => {
 
   saving.value = true
   try {
-    await userAPI.updateProfile(username, editData.value, token.value)
+    // 过滤掉空的学校经历（没有学校名称的）
+    const filteredData = { ...editData.value }
+    if (filteredData.schoolExperiences) {
+      filteredData.schoolExperiences = filteredData.schoolExperiences.filter(exp => exp.school && exp.school.trim())
+    }
+    // 同样过滤工作经历
+    if (filteredData.workExperiences) {
+      filteredData.workExperiences = filteredData.workExperiences.filter(exp => exp.position && exp.position.trim() && exp.company && exp.company.trim())
+    }
+
+    await userAPI.updateProfile(username, filteredData, token.value)
     // 使用深拷贝避免引用问题
-    profileData.value = JSON.parse(JSON.stringify(editData.value))
+    profileData.value = JSON.parse(JSON.stringify(filteredData))
     editMode.value = false
     alert(t('profile.saveSuccess'))
   } catch (error) {
@@ -575,6 +614,76 @@ const triggerWorkLogoInput = (index) => {
 // 移除工作经历 Logo
 const removeWorkLogo = (index) => {
   editData.value.workExperiences[index].logo = ''
+}
+
+// 添加学校经历
+const addSchoolExperience = () => {
+  if (!editData.value.schoolExperiences) {
+    editData.value.schoolExperiences = []
+  }
+  editData.value.schoolExperiences.push({
+    degree: '',
+    school: '',
+    major: '',
+    startDate: '',
+    endDate: '',
+    description: '',
+    logo: ''
+  })
+}
+
+// 删除学校经历
+const removeSchoolExperience = (index) => {
+  editData.value.schoolExperiences.splice(index, 1)
+}
+
+// 更新学校经历
+const updateSchoolExperience = (index, field, value) => {
+  editData.value.schoolExperiences[index][field] = value
+}
+
+// 处理学校经历 Logo 上传
+const handleSchoolLogoUpload = (event, index) => {
+  const file = event.target.files[0]
+  if (!file) return
+
+  if (file.size > 2 * 1024 * 1024) {
+    alert(t('profile.imageTooLarge'))
+    return
+  }
+
+  if (!file.type.startsWith('image/')) {
+    alert(t('contact.selectImageFile'))
+    return
+  }
+
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    editData.value.schoolExperiences[index].logo = e.target.result
+  }
+  reader.readAsDataURL(file)
+}
+
+// 学校经历 Logo 输入元素引用
+const schoolLogoInputs = ref([])
+
+// 设置学校经历 Logo 输入元素引用
+const setSchoolLogoInputRef = (el, index) => {
+  if (el) {
+    schoolLogoInputs.value[index] = el
+  }
+}
+
+// 触发学校经历 Logo 文件选择
+const triggerSchoolLogoInput = (index) => {
+  if (schoolLogoInputs.value[index]) {
+    schoolLogoInputs.value[index].click()
+  }
+}
+
+// 移除学校经历 Logo
+const removeSchoolLogo = (index) => {
+  editData.value.schoolExperiences[index].logo = ''
 }
 
 // 退出登录
