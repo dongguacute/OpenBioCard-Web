@@ -222,6 +222,15 @@
         </div>
       </div>
     </main>
+
+    <!-- 通知弹窗 -->
+    <NotificationModal
+      :show="notificationModal.show"
+      :type="notificationModal.type"
+      :title="notificationModal.title"
+      :message="notificationModal.message"
+      @close="closeNotificationModal"
+    />
   </div>
 </template>
 
@@ -229,6 +238,7 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useTheme } from '../composables/useTheme'
+import NotificationModal from './NotificationModal.vue'
 import { adminAPI } from '../api/index.js'
 
 const props = defineProps({
@@ -249,6 +259,14 @@ const newUser = ref({
 })
 const creating = ref(false)
 const mobileMenuOpen = ref(false)
+
+// 通知弹窗状态
+const notificationModal = ref({
+  show: false,
+  type: 'info',
+  title: '',
+  message: ''
+})
 
 const toggleMobileMenu = () => {
   mobileMenuOpen.value = !mobileMenuOpen.value
@@ -281,7 +299,7 @@ const fetchUsers = async () => {
 
 const createUser = async () => {
   if (!props.user || !props.token) {
-    alert(t('admin.userCreateError'))
+    showNotification('error', t('common.tips'), t('admin.userCreateError'))
     return
   }
 
@@ -289,13 +307,13 @@ const createUser = async () => {
   try {
     console.log('Creating user:', newUser.value.username)
     await adminAPI.createUser(newUser.value, props.token, props.user.username)
-    alert(t('admin.userCreated'))
+    showNotification('success', t('common.tips'), t('admin.userCreated'))
     newUser.value = { username: '', password: '', type: 'user' }
     console.log('Refreshing user list after creation')
     await fetchUsers()
   } catch (error) {
     console.error('Create user error:', error)
-    alert(`${t('admin.userCreateFailed')}: ${error.message}`)
+    showNotification('error', t('common.tips'), `${t('admin.userCreateFailed')}: ${error.message}`)
   } finally {
     creating.value = false
   }
@@ -303,7 +321,7 @@ const createUser = async () => {
 
 const deleteUser = async (username) => {
   if (!props.user || !props.token) {
-    alert(t('admin.userDeleteError'))
+    showNotification('error', t('common.tips'), t('admin.userDeleteError'))
     return
   }
 
@@ -312,17 +330,37 @@ const deleteUser = async (username) => {
   try {
     console.log('Deleting user:', username)
     await adminAPI.deleteUser(username, props.token, props.user.username)
-    alert(t('admin.userDeleted'))
+    showNotification('success', t('common.tips'), t('admin.userDeleted'))
     console.log('Refreshing user list after deletion')
     await fetchUsers()
   } catch (error) {
     console.error('Delete user error:', error)
-    alert(`${t('admin.userDeleteFailed')}: ${error.message}`)
+    showNotification('error', t('common.tips'), `${t('admin.userDeleteFailed')}: ${error.message}`)
   }
 }
 
 const logout = () => {
   emit('logout')
+}
+
+// 关闭通知弹窗
+const closeNotificationModal = () => {
+  notificationModal.value = {
+    show: false,
+    type: 'info',
+    title: '',
+    message: ''
+  }
+}
+
+// 显示通知弹窗
+const showNotification = (type, title, message) => {
+  notificationModal.value = {
+    show: true,
+    type,
+    title,
+    message
+  }
 }
 
 // 点击外部关闭移动菜单

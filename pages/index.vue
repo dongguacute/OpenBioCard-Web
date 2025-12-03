@@ -2,6 +2,15 @@
   <div class="min-h-screen">
     <Login v-if="currentView === 'login'" @login="login" />
     <AdminPanel v-else-if="currentView === 'admin'" :user="user" :token="token" @logout="logout" />
+
+    <!-- 通知弹窗 -->
+    <NotificationModal
+      :show="notificationModal.show"
+      :type="notificationModal.type"
+      :title="notificationModal.title"
+      :message="notificationModal.message"
+      @close="closeNotificationModal"
+    />
   </div>
 </template>
 
@@ -10,6 +19,7 @@ import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Login from '../components/Login.vue'
 import AdminPanel from '../components/AdminPanel.vue'
+import NotificationModal from '../components/NotificationModal.vue'
 import { authAPI } from '../api/index.js'
 
 const { t } = useI18n()
@@ -17,6 +27,14 @@ const { t } = useI18n()
 const currentView = ref('login')
 const user = ref(null)
 const token = ref('')
+
+// 通知弹窗状态
+const notificationModal = ref({
+  show: false,
+  type: 'info',
+  title: '',
+  message: ''
+})
 
 // 从cookies获取token
 const getCookie = (name) => {
@@ -87,10 +105,10 @@ const login = async (username, password) => {
         window.location.href = `/${username}`
       }
     } else {
-      alert(t('auth.loginFailed'))
+      showNotification('error', t('common.tips'), t('auth.loginFailed'))
     }
   } catch (error) {
-    alert(t('auth.loginError'))
+    showNotification('error', t('common.tips'), t('auth.loginError'))
   }
 }
 
@@ -102,6 +120,26 @@ const logout = () => {
   user.value = null
   token.value = ''
   currentView.value = 'login'
+}
+
+// 关闭通知弹窗
+const closeNotificationModal = () => {
+  notificationModal.value = {
+    show: false,
+    type: 'info',
+    title: '',
+    message: ''
+  }
+}
+
+// 显示通知弹窗
+const showNotification = (type, title, message) => {
+  notificationModal.value = {
+    show: true,
+    type,
+    title,
+    message
+  }
 }
 
 onMounted(() => {

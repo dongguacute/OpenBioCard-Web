@@ -86,6 +86,15 @@
         </div>
       </div>
     </div>
+
+    <!-- 通知弹窗 -->
+    <NotificationModal
+      :show="notificationModal.show"
+      :type="notificationModal.type"
+      :title="notificationModal.title"
+      :message="notificationModal.message"
+      @close="closeNotificationModal"
+    />
   </div>
 </template>
 
@@ -316,6 +325,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import NotificationModal from './NotificationModal.vue'
 
 const { t } = useI18n()
 
@@ -330,8 +340,36 @@ const emit = defineEmits(['add', 'remove', 'update-caption'])
 
 const fileInput = ref(null)
 
+// 通知弹窗状态
+const notificationModal = ref({
+  show: false,
+  type: 'info',
+  title: '',
+  message: ''
+})
+
 const isBase64Image = (str) => {
   return str && str.startsWith('data:image/') && str.includes('base64,')
+}
+
+// 关闭通知弹窗
+const closeNotificationModal = () => {
+  notificationModal.value = {
+    show: false,
+    type: 'info',
+    title: '',
+    message: ''
+  }
+}
+
+// 显示通知弹窗
+const showNotification = (type, title, message) => {
+  notificationModal.value = {
+    show: true,
+    type,
+    title,
+    message
+  }
 }
 
 const triggerFileInput = () => {
@@ -346,12 +384,12 @@ const handleFileUpload = (event) => {
 
   Array.from(files).forEach(file => {
     if (file.size > 2 * 1024 * 1024) {
-      alert(t('gallery.imageTooLarge', { filename: file.name }))
+      showNotification('error', t('common.tips'), t('gallery.imageTooLarge', { filename: file.name }))
       return
     }
 
     if (!file.type.startsWith('image/')) {
-      alert(t('gallery.notImageFile', { filename: file.name }))
+      showNotification('error', t('common.tips'), t('gallery.notImageFile', { filename: file.name }))
       return
     }
 

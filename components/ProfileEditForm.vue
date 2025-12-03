@@ -210,12 +210,22 @@
         </div>
       </form>
     </div>
+
+    <!-- 通知弹窗 -->
+    <NotificationModal
+      :show="notificationModal.show"
+      :type="notificationModal.type"
+      :title="notificationModal.title"
+      :message="notificationModal.message"
+      @close="closeNotificationModal"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import NotificationModal from './NotificationModal.vue'
 
 const { t } = useI18n()
 
@@ -239,8 +249,36 @@ const emit = defineEmits(['save', 'cancel', 'update:name', 'update:pronouns', 'u
 const fileInput = ref(null)
 const backgroundInput = ref(null)
 
+// 通知弹窗状态
+const notificationModal = ref({
+  show: false,
+  type: 'info',
+  title: '',
+  message: ''
+})
+
 const isBase64Image = (str) => {
   return str && str.startsWith('data:image/') && str.includes('base64,')
+}
+
+// 关闭通知弹窗
+const closeNotificationModal = () => {
+  notificationModal.value = {
+    show: false,
+    type: 'info',
+    title: '',
+    message: ''
+  }
+}
+
+// 显示通知弹窗
+const showNotification = (type, title, message) => {
+  notificationModal.value = {
+    show: true,
+    type,
+    title,
+    message
+  }
 }
 
 const triggerFileInput = () => {
@@ -260,12 +298,12 @@ const handleAvatarUpload = (event) => {
   if (!file) return
 
   if (file.size > 2 * 1024 * 1024) {
-    alert(t('profile.imageTooLarge'))
+    showNotification('error', t('common.tips'), t('profile.imageTooLarge'))
     return
   }
 
   if (!file.type.startsWith('image/')) {
-    alert(t('contact.selectImageFile'))
+    showNotification('error', t('common.tips'), t('contact.selectImageFile'))
     return
   }
 
@@ -275,7 +313,7 @@ const handleAvatarUpload = (event) => {
   }
   reader.onerror = (e) => {
     console.error('File reading error:', e)
-    alert(t('profile.uploadError'))
+    showNotification('error', t('common.tips'), t('profile.uploadError'))
   }
   reader.readAsDataURL(file)
 }
@@ -285,12 +323,12 @@ const handleBackgroundUpload = (event) => {
   if (!file) return
 
   if (file.size > 3 * 1024 * 1024) {
-    alert(t('profile.backgroundTooLarge'))
+    showNotification('error', t('common.tips'), t('profile.backgroundTooLarge'))
     return
   }
 
   if (!file.type.startsWith('image/')) {
-    alert(t('contact.selectImageFile'))
+    showNotification('error', t('common.tips'), t('contact.selectImageFile'))
     return
   }
 
@@ -300,7 +338,7 @@ const handleBackgroundUpload = (event) => {
   }
   reader.onerror = (e) => {
     console.error('File reading error:', e)
-    alert(t('profile.uploadError'))
+    showNotification('error', t('common.tips'), t('profile.uploadError'))
   }
   reader.readAsDataURL(file)
 }

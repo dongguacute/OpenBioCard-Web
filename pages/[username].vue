@@ -149,6 +149,15 @@
       :label="qrCodeModal.label"
       @close="closeQrCodeModal"
     />
+
+    <!-- 通知弹窗 -->
+    <NotificationModal
+      :show="notificationModal.show"
+      :type="notificationModal.type"
+      :title="notificationModal.title"
+      :message="notificationModal.message"
+      @close="closeNotificationModal"
+    />
   </div>
 </template>
 
@@ -169,6 +178,7 @@ import ProjectsEdit from '../components/ProjectsEdit.vue'
 import GalleryList from '../components/GalleryList.vue'
 import GalleryEdit from '../components/GalleryEdit.vue'
 import QRCodeModal from '../components/QRCodeModal.vue'
+import NotificationModal from '../components/NotificationModal.vue'
 import UserNotFound from '../components/UserNotFound.vue'
 import WorkExperience from '../components/WorkExperience.vue'
 import WorkExperienceEdit from '../components/WorkExperienceEdit.vue'
@@ -216,6 +226,14 @@ const qrCodeModal = ref({
   show: false,
   image: '',
   label: ''
+})
+
+// 通知弹窗状态
+const notificationModal = ref({
+  show: false,
+  type: 'info',
+  title: '',
+  message: ''
 })
 
 // 获取cookie
@@ -353,9 +371,9 @@ const saveProfile = async () => {
     // 使用深拷贝避免引用问题
     profileData.value = JSON.parse(JSON.stringify(filteredData))
     editMode.value = false
-    alert(t('profile.saveSuccess'))
+    showNotification('success', t('common.tips'), t('profile.saveSuccess'))
   } catch (error) {
-    alert(t('profile.saveFailed'))
+    showNotification('error', t('common.tips'), t('profile.saveFailed'))
   } finally {
     saving.value = false
   }
@@ -394,12 +412,12 @@ const handleContactUpload = (event, index) => {
   if (!file) return
 
   if (file.size > 2 * 1024 * 1024) {
-    alert(t('contact.qrCodeTooLarge'))
+    showNotification('error', t('common.tips'), t('contact.qrCodeTooLarge'))
     return
   }
 
   if (!file.type.startsWith('image/')) {
-    alert(t('contact.selectImageFile'))
+    showNotification('error', t('common.tips'), t('contact.selectImageFile'))
     return
   }
 
@@ -427,6 +445,26 @@ const closeQrCodeModal = () => {
     show: false,
     image: '',
     label: ''
+  }
+}
+
+// 关闭通知弹窗
+const closeNotificationModal = () => {
+  notificationModal.value = {
+    show: false,
+    type: 'info',
+    title: '',
+    message: ''
+  }
+}
+
+// 显示通知弹窗
+const showNotification = (type, title, message) => {
+  notificationModal.value = {
+    show: true,
+    type,
+    title,
+    message
   }
 }
 
@@ -538,12 +576,12 @@ const handleProjectLogoUpload = (event, index) => {
   if (!file) return
 
   if (file.size > 2 * 1024 * 1024) {
-    alert(t('projects.uploadLogo'))
+    showNotification('error', t('common.tips'), t('profile.imageTooLarge'))
     return
   }
 
   if (!file.type.startsWith('image/')) {
-    alert(t('contact.selectImageFile'))
+    showNotification('error', t('common.tips'), t('contact.selectImageFile'))
     return
   }
 
@@ -604,12 +642,12 @@ const handleWorkLogoUpload = (event, index) => {
   if (!file) return
 
   if (file.size > 2 * 1024 * 1024) {
-    alert(t('profile.imageTooLarge'))
+    showNotification('error', t('common.tips'), t('profile.imageTooLarge'))
     return
   }
 
   if (!file.type.startsWith('image/')) {
-    alert(t('contact.selectImageFile'))
+    showNotification('error', t('common.tips'), t('contact.selectImageFile'))
     return
   }
 
@@ -674,12 +712,12 @@ const handleSchoolLogoUpload = (event, index) => {
   if (!file) return
 
   if (file.size > 2 * 1024 * 1024) {
-    alert(t('profile.imageTooLarge'))
+    showNotification('error', t('common.tips'), t('profile.imageTooLarge'))
     return
   }
 
   if (!file.type.startsWith('image/')) {
-    alert(t('contact.selectImageFile'))
+    showNotification('error', t('common.tips'), t('contact.selectImageFile'))
     return
   }
 
