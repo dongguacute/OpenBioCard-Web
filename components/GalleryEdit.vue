@@ -378,30 +378,66 @@ const triggerFileInput = () => {
   }
 }
 
-const handleFileUpload = (event) => {
+const handleFileUpload = async (event) => {
   const files = event.target.files
   if (!files || files.length === 0) return
 
+  const validFiles = []
+  const errors = []
+
+  // 首先验证所有文件
   Array.from(files).forEach(file => {
     if (file.size > 5 * 1024 * 1024) {
-      showNotification('error', t('common.tips'), t('gallery.imageTooLarge', { filename: file.name }))
+      errors.push(t('gallery.imageTooLarge', { filename: file.name }))
       return
     }
 
     if (!file.type.startsWith('image/')) {
-      showNotification('error', t('common.tips'), t('gallery.notImageFile', { filename: file.name }))
+      errors.push(t('gallery.notImageFile', { filename: file.name }))
       return
     }
 
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      emit('add', {
-        image: e.target.result,
-        caption: ''
-      })
-    }
-    reader.readAsDataURL(file)
+    validFiles.push(file)
   })
+
+  // 显示所有错误
+  if (errors.length > 0) {
+    errors.forEach(error => {
+      showNotification('error', t('common.tips'), error)
+    })
+  }
+
+  // 如果没有有效文件，返回
+  if (validFiles.length === 0) {
+    event.target.value = ''
+    return
+  }
+
+  // 限制并发处理数量，避免浏览器卡顿
+  const concurrencyLimit = 3
+  const processFile = (file) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        emit('add', {
+          image: e.target.result,
+          caption: ''
+        })
+        resolve()
+      }
+      reader.onerror = () => {
+        showNotification('error', t('common.tips'), `Failed to read file: ${file.name}`)
+        resolve()
+      }
+      reader.readAsDataURL(file)
+    })
+  }
+
+  // 分批处理文件
+  for (let i = 0; i < validFiles.length; i += concurrencyLimit) {
+    const batch = validFiles.slice(i, i + concurrencyLimit)
+    await Promise.all(batch.map(processFile))
+  }
 
   // 清空输入，允许重复上传相同文件
   event.target.value = ''
