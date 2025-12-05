@@ -402,9 +402,8 @@ const handleFileUpload = (event) => {
 
   // 显示所有错误
   if (errors.length > 0) {
-    errors.forEach(error => {
-      showNotification('error', t('common.tips'), error)
-    })
+    const errorMessage = errors.join('\n')
+    showNotification('error', t('common.tips'), errorMessage)
   }
 
   // 如果没有有效文件，返回
