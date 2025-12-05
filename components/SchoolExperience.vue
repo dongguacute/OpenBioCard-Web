@@ -20,7 +20,12 @@
           </div>
           <div style="flex: 1;">
             <div v-if="exp.degree" style="font-weight: 600; color: var(--color-text-primary); font-size: 1.125rem; margin-bottom: 0.25rem;">{{ exp.degree }}</div>
-            <div style="font-weight: 500; color: var(--color-primary); margin-bottom: 0.25rem;">{{ exp.school }}</div>
+            <div style="font-weight: 500; color: var(--color-primary); margin-bottom: 0.25rem;">
+              <template v-if="exp.schoolLink">
+                <a :href="exp.schoolLink" target="_blank" style="color: var(--color-primary); text-decoration: none; font-weight: 500;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">{{ exp.school }}</a>
+              </template>
+              <template v-else>{{ exp.school }}</template>
+            </div>
             <div v-if="exp.major" style="font-size: 0.875rem; color: var(--color-text-secondary); margin-bottom: 0.5rem;">{{ $t('profile.major') }}: {{ exp.major }}</div>
             <div style="font-size: 0.875rem; color: var(--color-text-tertiary); margin-bottom: 0.75rem;">
               {{ formatDate(exp.startDate) }} - {{ exp.endDate ? formatDate(exp.endDate) : $t('profile.present') }}

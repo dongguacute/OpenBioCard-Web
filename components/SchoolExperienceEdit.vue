@@ -44,6 +44,18 @@
               onblur="this.style.borderColor='var(--color-border-secondary)'; this.style.boxShadow='none'"
             />
           </div>
+          <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <label style="font-size: 0.75rem; font-weight: 500; color: var(--color-text-secondary);">{{ $t('profile.schoolLink') }} <span style="font-weight: normal; color: var(--color-text-tertiary);">({{ $t('common.optional') }})</span></label>
+            <input
+              :value="exp.schoolLink"
+              @input="$emit('update-school-link', index, $event.target.value)"
+              type="url"
+              style="width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--color-border-secondary); border-radius: 0.375rem; outline: none; transition: all 0.2s; background: var(--color-bg-primary); color: var(--color-text-primary); font-size: 0.875rem;"
+              :placeholder="$t('profile.enterSchoolLink')"
+              onfocus="this.style.borderColor='var(--color-primary)'; this.style.boxShadow='var(--shadow-focus)'"
+              onblur="this.style.borderColor='var(--color-border-secondary)'; this.style.boxShadow='none'"
+            />
+          </div>
         </div>
         <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem;">
           <label style="font-size: 0.75rem; font-weight: 500; color: var(--color-text-secondary);">{{ $t('profile.major') }} <span style="font-weight: normal; color: var(--color-text-tertiary);">({{ $t('common.optional') }})</span></label>
@@ -172,6 +184,7 @@ defineEmits([
   'remove',
   'update-degree',
   'update-school',
+  'update-school-link',
   'update-major',
   'update-start-date',
   'update-end-date',

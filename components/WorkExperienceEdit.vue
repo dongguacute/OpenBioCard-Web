@@ -44,6 +44,18 @@
               onblur="this.style.borderColor='var(--color-border-secondary)'; this.style.boxShadow='none'"
             />
           </div>
+          <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <label style="font-size: 0.75rem; font-weight: 500; color: var(--color-text-secondary);">{{ $t('profile.companyLink') }} <span style="font-weight: normal; color: var(--color-text-tertiary);">({{ $t('common.optional') }})</span></label>
+            <input
+              :value="exp.companyLink"
+              @input="$emit('update-company-link', index, $event.target.value)"
+              type="url"
+              style="width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--color-border-secondary); border-radius: 0.375rem; outline: none; transition: all 0.2s; background: var(--color-bg-primary); color: var(--color-text-primary); font-size: 0.875rem;"
+              :placeholder="$t('profile.enterCompanyLink')"
+              onfocus="this.style.borderColor='var(--color-primary)'; this.style.boxShadow='var(--shadow-focus)'"
+              onblur="this.style.borderColor='var(--color-border-secondary)'; this.style.boxShadow='none'"
+            />
+          </div>
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
           <div style="display: flex; flex-direction: column; gap: 0.5rem;">
@@ -160,6 +172,7 @@ defineEmits([
   'remove',
   'update-position',
   'update-company',
+  'update-company-link',
   'update-start-date',
   'update-end-date',
   'update-description',

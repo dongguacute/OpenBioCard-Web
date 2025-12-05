@@ -59,10 +59,10 @@
               🌐 <a :href="profileData.website" target="_blank" style="color: var(--color-primary); text-decoration: none; font-weight: 500;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">{{ profileData.website }}</a>
             </span>
             <span v-if="profileData.currentCompany" style="display: flex; align-items: center; gap: 0.25rem;">
-              🏢 {{ profileData.currentCompany }}
+              🏢 <template v-if="profileData.currentCompanyLink"><a :href="profileData.currentCompanyLink" target="_blank" style="color: var(--color-primary); text-decoration: none; font-weight: 500;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">{{ profileData.currentCompany }}</a></template><template v-else>{{ profileData.currentCompany }}</template>
             </span>
             <span v-if="profileData.currentSchool" style="display: flex; align-items: center; gap: 0.25rem;">
-              🎓 {{ profileData.currentSchool }}
+              🎓 <template v-if="profileData.currentSchoolLink"><a :href="profileData.currentSchoolLink" target="_blank" style="color: var(--color-primary); text-decoration: none; font-weight: 500;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">{{ profileData.currentSchool }}</a></template><template v-else>{{ profileData.currentSchool }}</template>
             </span>
           </div>
         </div>

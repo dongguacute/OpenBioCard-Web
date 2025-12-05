@@ -176,6 +176,18 @@
             />
           </div>
           <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <label style="display: block; font-size: 0.875rem; font-weight: 600; color: var(--color-text-secondary);">{{ $t('profile.currentCompanyLink') }} <span style="font-weight: normal; color: var(--color-text-tertiary);">({{ $t('common.optional') }})</span></label>
+            <input
+              :value="editData.currentCompanyLink"
+              @input="$emit('update:currentCompanyLink', $event.target.value)"
+              type="url"
+              style="width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--color-border-secondary); border-radius: 0.75rem; outline: none; transition: all 0.2s; background: var(--color-bg-primary); color: var(--color-text-primary);"
+              :placeholder="$t('profile.enterCurrentCompanyLink')"
+              onfocus="this.style.borderColor='var(--color-primary)'; this.style.boxShadow='var(--shadow-focus)'"
+              onblur="this.style.borderColor='var(--color-border-secondary)'; this.style.boxShadow='none'"
+            />
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 0.5rem;">
             <label style="display: block; font-size: 0.875rem; font-weight: 600; color: var(--color-text-secondary);">{{ $t('profile.currentSchool') }}</label>
             <input
               :value="editData.currentSchool"
@@ -183,6 +195,18 @@
               type="text"
               style="width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--color-border-secondary); border-radius: 0.75rem; outline: none; transition: all 0.2s; background: var(--color-bg-primary); color: var(--color-text-primary);"
               :placeholder="$t('profile.enterCurrentSchool')"
+              onfocus="this.style.borderColor='var(--color-primary)'; this.style.boxShadow='var(--shadow-focus)'"
+              onblur="this.style.borderColor='var(--color-border-secondary)'; this.style.boxShadow='none'"
+            />
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <label style="display: block; font-size: 0.875rem; font-weight: 600; color: var(--color-text-secondary);">{{ $t('profile.currentSchoolLink') }} <span style="font-weight: normal; color: var(--color-text-tertiary);">({{ $t('common.optional') }})</span></label>
+            <input
+              :value="editData.currentSchoolLink"
+              @input="$emit('update:currentSchoolLink', $event.target.value)"
+              type="url"
+              style="width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--color-border-secondary); border-radius: 0.75rem; outline: none; transition: all 0.2s; background: var(--color-bg-primary); color: var(--color-text-primary);"
+              :placeholder="$t('profile.enterCurrentSchoolLink')"
               onfocus="this.style.borderColor='var(--color-primary)'; this.style.boxShadow='var(--shadow-focus)'"
               onblur="this.style.borderColor='var(--color-border-secondary)'; this.style.boxShadow='none'"
             />
@@ -244,7 +268,7 @@ defineProps({
   }
 })
 
-const emit = defineEmits(['save', 'cancel', 'update:name', 'update:pronouns', 'update:avatar', 'update:bio', 'update:background', 'update:location', 'update:website', 'update:currentCompany', 'update:currentSchool', 'avatar-upload', 'background-upload'])
+const emit = defineEmits(['save', 'cancel', 'update:name', 'update:pronouns', 'update:avatar', 'update:bio', 'update:background', 'update:location', 'update:website', 'update:currentCompany', 'update:currentCompanyLink', 'update:currentSchool', 'update:currentSchoolLink', 'avatar-upload', 'background-upload'])
 
 const fileInput = ref(null)
 const backgroundInput = ref(null)

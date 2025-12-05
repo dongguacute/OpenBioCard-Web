@@ -32,7 +32,9 @@
           @update:location="editData.location = $event"
           @update:website="editData.website = $event"
           @update:currentCompany="editData.currentCompany = $event"
+          @update:currentCompanyLink="editData.currentCompanyLink = $event"
           @update:currentSchool="editData.currentSchool = $event"
+          @update:currentSchoolLink="editData.currentSchoolLink = $event"
           @update:workExperiences="editData.workExperiences = $event"
         />
 
@@ -96,6 +98,7 @@
           @remove="removeWorkExperience"
           @update-position="(index, value) => updateWorkExperience(index, 'position', value)"
           @update-company="(index, value) => updateWorkExperience(index, 'company', value)"
+          @update-company-link="(index, value) => updateWorkExperience(index, 'companyLink', value)"
           @update-start-date="(index, value) => updateWorkExperience(index, 'startDate', value)"
           @update-end-date="(index, value) => updateWorkExperience(index, 'endDate', value)"
           @update-description="(index, value) => updateWorkExperience(index, 'description', value)"
@@ -116,6 +119,7 @@
           @remove="removeSchoolExperience"
           @update-degree="(index, value) => updateSchoolExperience(index, 'degree', value)"
           @update-school="(index, value) => updateSchoolExperience(index, 'school', value)"
+          @update-school-link="(index, value) => updateSchoolExperience(index, 'schoolLink', value)"
           @update-major="(index, value) => updateSchoolExperience(index, 'major', value)"
           @update-start-date="(index, value) => updateSchoolExperience(index, 'startDate', value)"
           @update-end-date="(index, value) => updateSchoolExperience(index, 'endDate', value)"
@@ -207,7 +211,9 @@ const profileData = ref({
   website: '',
   background: '',
   currentCompany: '',
+  currentCompanyLink: '',
   currentSchool: '',
+  currentSchoolLink: '',
   workExperiences: [],
   schoolExperiences: [],
   contacts: [],
@@ -619,6 +625,7 @@ const addWorkExperience = () => {
   editData.value.workExperiences.push({
     position: '',
     company: '',
+    companyLink: '',
     startDate: '',
     endDate: '',
     description: '',
@@ -688,6 +695,7 @@ const addSchoolExperience = () => {
   editData.value.schoolExperiences.push({
     degree: '',
     school: '',
+    schoolLink: '',
     major: '',
     startDate: '',
     endDate: '',
