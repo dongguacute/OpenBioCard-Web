@@ -50,7 +50,7 @@
               {{ profileData.pronouns }}
             </span>
           </div>
-          <p style="color: var(--color-text-tertiary); font-size: 1.125rem; margin-bottom: 1rem; line-height: 1.75;">{{ profileData.bio || $t('profile.defaultBio') }}</p>
+          <p style="color: var(--color-text-tertiary); font-size: 1.125rem; margin-bottom: 1rem; line-height: 1.75;" v-html="formatBio(profileData.bio) || $t('profile.defaultBio')"></p>
           <div style="display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.875rem; color: var(--color-text-tertiary);">
             <span v-if="profileData.location" style="display: flex; align-items: center; gap: 0.25rem;">
               📍 {{ profileData.location }}
@@ -87,6 +87,21 @@ defineEmits(['toggle-edit'])
 
 const isBase64Image = (str) => {
   return str && str.startsWith('data:image/') && str.includes('base64,')
+}
+
+const formatBio = (bio) => {
+  if (!bio) return ''
+  
+  // Escape HTML to prevent XSS
+  const escapedBio = bio
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+
+  // Replace @username with link, avoiding email addresses (must be preceded by start of string or non-word char)
+  return escapedBio.replace(/(^|[^a-zA-Z0-9_])@([a-zA-Z0-9_]+)/g, '$1<a href="/$2" style="color: var(--color-primary); text-decoration: none;" onmouseover="this.style.textDecoration=\'underline\'" onmouseout="this.style.textDecoration=\'none\'">@$2</a>')
 }
 
 const formatDate = (dateStr) => {
